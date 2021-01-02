@@ -1,5 +1,3 @@
-zappa
-hug
-marshmallow
+flask
 oauth2client
 gspread

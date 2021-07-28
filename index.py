@@ -2,8 +2,7 @@
 
 import os
 import logging
-from flask import Flask
-from flask import request
+from flask import Flask, request, jsonify
 from datetime import datetime
 
 import gspread
@@ -26,17 +25,22 @@ client = gspread.authorize(creds)
 
 app = Flask(__name__)
 
-
-@app.route("/send", methods=["GET"])
+@app.route("/test", methods=["GET"])
 def send():
-    from_ad = request.args.get('from')
+    data = {'status': True, 'from':"test"}
+    return data, 200
+@app.route("/send", methods=["POST"])
+def send():
+    logger.info(f'request {request.json["gid"]}')
+    json = request.json
+    from_ad = json['from']
     # id = request.args.get('id')
     # url = request.args.get('url')
-    gid = request.args.get('gid')
+    gid = json['gid']
     created = datetime.utcnow()
     logger.info(gid)
-    sheet = get_sheet(request)
-    dict__values__pop = list(request.args.to_dict().values())
+    sheet = get_sheet(json)
+    dict__values__pop = list(json.values())
     dict__values__pop.pop(0)
     dict__values__pop.insert(0,created.isoformat())
     logger.info(f'request: {dict__values__pop}')
@@ -47,7 +51,7 @@ def send():
 # logger.info(f'{id}: value: {val} -> {url}')
 
 def get_sheet(request):
-    gid = request.args.get('gid')
+    gid = request['gid']
     logger.info(f'gid: {gid}')
     logger.info(f'gid empty: {not gid}')
     logger.info(f'gid null: {gid is not None}')
